@@ -1,0 +1,20 @@
+name: Validate Network Intent File Content 
+
+on:
+  push:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download my file on runner
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check if Intent file is valid YAML file or not
+        run: |
+          python -c "import yaml; yaml.safe_load(open('data/devices.yml')); print('Intent file is valid')"
