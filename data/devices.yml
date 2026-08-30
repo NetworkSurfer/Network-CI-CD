@@ -4,4 +4,4 @@ devices:
     role: spine
   - hostname: r2
     mgmt_ip: 10.0.0.2
-  role: leaf
+    role: leaf
