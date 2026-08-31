@@ -17,7 +17,7 @@ jobs:
           python-version: "3.12"
           
       - name: Install PyYAML library  (runner always run blank server!)
-        run: pip install pyyaml          
+        run: pip install pyyaml jinja2          
 
       - name: Check if Intent file is valid YAML file or not
         run: |
