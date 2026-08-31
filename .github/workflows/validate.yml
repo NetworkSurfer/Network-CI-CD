@@ -7,6 +7,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
+    # ---------- STAGE 1: VALIDATE (the gate) this stage will validate the data YAML file such as device file to check if this is valid or not----------
       - name: Download my file on runner
         uses: actions/checkout@v4
 
@@ -21,3 +22,14 @@ jobs:
       - name: Check if Intent file is valid YAML file or not
         run: |
           python -c "import yaml; yaml.safe_load(open('data/devices.yml')); print('Intent file is valid')"
+
+      # ---------- STAGE 2: BUILD / RENDER (the factory) ----------
+
+      - name: Generate device configs from intent + template
+        run: python scripts/render.py      
+      
+      - name: Save generated configs from runner server to local repo, so I can download them later from gitrepo
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-configs
+          path: build/
