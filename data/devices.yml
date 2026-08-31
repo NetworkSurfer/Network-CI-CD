@@ -1,7 +1,7 @@
 devices:
   - hostname: r1
-    mgmt_ip: 10.0.0.1
+    int_ip : 10.0.0.1
     role: spine
   - hostname: r2
-    mgmt_ip: 10.0.0.2
+    int_ip : 10.0.0.2
     role: leaf
