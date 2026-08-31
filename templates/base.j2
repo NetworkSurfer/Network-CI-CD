@@ -1,0 +1,6 @@
+set / system name host-name {{ hostname }}
+set / interface ethernet-1/1 admin-state enable
+set / interface ethernet-1/1 subinterface 0 admin-state enable
+set / interface ethernet-1/1 subinterface 0 ipv4 admin-state enable
+set / interface ethernet-1/1 subinterface 0 ipv4 address {{ int_ip }}/24
+set / network-instance default interface ethernet-1/1.0
