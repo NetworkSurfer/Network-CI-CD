@@ -46,7 +46,7 @@ jobs:
       - name: TEST - can r1 reach r2 over the link?
         run: |
           docker exec clab-net-cicd-lab-r1 sr_cli "ping 10.0.0.2 network-instance default -c 3" | tee ping-result.txt
-          grep "0% packet loss" ping-result.txt
+          grep ", 0% packet loss" ping-result.txt
 
       - name: Tear down the lab (good hygiene)
         if: always()
