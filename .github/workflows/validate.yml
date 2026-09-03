@@ -1,35 +1,53 @@
-name: Validate Network Intent File Content 
+name: Network CI Pipeline
 
 on:
   push:
 
 jobs:
-  validate:
+  build:
     runs-on: ubuntu-latest
     steps:
-    # ---------- STAGE 1: VALIDATE (the gate) this stage will validate the data YAML file such as device file to check if this is valid or not----------
-      - name: Download my file on runner
+      # ---------- STAGE 1: VALIDATE (UC1 — the gate) ----------
+      - name: Download my files on runner
         uses: actions/checkout@v4
 
       - name: Install Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          
-      - name: Install PyYAML library  (runner always run blank server!)
-        run: pip install pyyaml jinja2          
 
-      - name: Check if Intent file is valid YAML file or not
+      - name: Install libraries (runner blank aata hai!)
+        run: pip install pyyaml jinja2
+
+      - name: Validate intent file is proper YAML
         run: |
           python -c "import yaml; yaml.safe_load(open('data/devices.yml')); print('Intent file is valid')"
 
-      # ---------- STAGE 2: BUILD / RENDER (the factory) ----------
-
+      # ---------- STAGE 2: BUILD / RENDER (UC2 — the factory) ----------
       - name: Generate device configs from intent + template
-        run: python scripts/render.py      
-      
-      - name: Save generated configs from runner server to local repo, so I can download them later from gitrepo
+        run: python scripts/render.py
+
+      - name: Save generated configs so I can download them
         uses: actions/upload-artifact@v4
         with:
           name: device-configs
           path: build/
+
+      # ---------- STAGE 3: TEST LAB (UC3 — real routers + test) ----------
+      - name: Install Containerlab on the runner
+        run: bash -c "$(curl -sL https://get.containerlab.dev)"
+
+      - name: Deploy the virtual topology (2x SR Linux)
+        run: sudo containerlab deploy -t lab.clab.yml
+
+      - name: Give the routers a moment to finish booting
+        run: sleep 20
+
+      - name: TEST - can r1 reach r2 over the link?
+        run: |
+          docker exec clab-net-cicd-lab-r1 sr_cli "ping 10.0.0.2 network-instance default -c 3" | tee ping-result.txt
+          grep "0% packet loss" ping-result.txt
+
+      - name: Tear down the lab (good hygiene)
+        if: always()
+        run: sudo containerlab destroy -t lab.clab.yml --cleanup
